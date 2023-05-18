@@ -1,0 +1,7 @@
+# profile \u591A\u73AF\u5883
+mybatis:
+  mapper-locations: classpath:mapper/*.xml   # \u6620\u5C04\u6587\u4EF6\u8DEF\u5F84
+  type-aliases-package: cn.zeroeden.dao      # \u63A5\u53E3\u8DEF\u5F84
+server:
+  port: 9090
+

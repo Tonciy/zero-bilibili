@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD MAPPER 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.zeroeden.dao.UserDao">
+
+    <select id="getUserByPhone" parameterType="java.lang.String" resultType="cn.zeroeden.domain.User">
+        select
+            *
+        from
+            t_user
+        where
+            phone = #{phone}
+    </select>
+    <select id="getUserById" parameterType="java.lang.Long" resultType="cn.zeroeden.domain.User">
+        select
+            *
+        from
+            t_user
+        where
+            id = #{id}
+    </select>
+    <select id="getUserInfoByUserId" parameterType="java.lang.Long" resultType="cn.zeroeden.domain.UserInfo">
+        selcet
+            *
+        from t_user_info
+        where
+            userId = #{userId}
+    </select>
+
+    <insert id="addUser" parameterType="cn.zeroeden.domain.User" useGeneratedKeys="true" keyProperty="id">
+        insert into
+            t_user(
+                  phone,
+                   email,
+                   password,
+                   salt,
+                   createTime
+        ) values (
+                  #{phone},
+                  #{email},
+                  #{password},
+                  #{salt},
+                  #{createTime}
+                         )
+    </insert>
+    <insert id="addUserInfo" parameterType="cn.zeroeden.domain.UserInfo">
+        insert into
+            t_user(
+                   userId,
+                   nick,
+                   sign,
+                   gender,
+                   birth,
+                   createTime
+        ) values (
+                  #{userId},
+                  #{nick},
+                  #{sign},
+                  #{gender},
+                  #{birth},
+                  #{createTime}
+                         )
+    </insert>
+</mapper>
