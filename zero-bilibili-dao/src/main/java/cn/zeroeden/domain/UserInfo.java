@@ -28,4 +28,9 @@ public class UserInfo {
     private String birth;
     private Date createTime;
     private Date updateTime;
+
+    /**
+     * 是否相互关注
+     */
+    private Boolean followed;
 }

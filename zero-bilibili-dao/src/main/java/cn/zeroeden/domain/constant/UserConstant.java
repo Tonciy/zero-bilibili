@@ -27,5 +27,17 @@ public class UserConstant {
      * 昵称
      */
     public static final String DEFAULT_NICK = "萌新";
+    /**
+     * 关注用户：默认分组
+     */
+    public static final String USER_FOLLOWING_GROUP_TYPE_DEFALUT = "2";
+    /**
+     * 关注用户：用户自定义分组
+     */
+    public static final String USER_FOLLOWING_GROUP_TYPE_USER = "3";
+    /**
+     * 分组类型：全部关注
+     */
+    public static final String USER_FOLLOWING_GROUP_ALL_NAME = "全部关注";
 
 }

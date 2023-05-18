@@ -1,6 +1,48 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD MAPPER 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="cn.zeroeden.dao.UserDao">
+    <update id="updateUserInfosByUserId" parameterType="cn.zeroeden.domain.UserInfo">
+        update
+            t_user_info
+        set
+            <if test="nick != null and nick != ''">
+                nick = #{nick},
+            </if>
+            <if test="avatar != null">
+                avatar = #{avatar},
+            </if>
+            <if test="sign != null">
+                sign = #{sign},
+            </if>
+            <if test="birth != null and birth != ''">
+                birth = #{birth},
+            </if>
+            <if test="gender != null and gender != ''">
+                gender = #{gender},
+            </if>
+            gengder = #{gender}
+        where
+            userId = #{userId}
+
+    </update>
+    <update id="updateUsersById" parameterType="cn.zeroeden.domain.User">
+        update
+            t_user
+        set
+            <if test="phone != null and phone != ''">
+                phone = #{phone},
+            </if>
+            <if test="email != null and email != ''">
+                email = #{email},
+            </if>
+            <if test="password != null and password != ''">
+                password = #{password},
+            </if>
+            updateTime = #{updateTime}
+        where
+            id = #{id}
+
+    </update>
 
     <select id="getUserByPhone" parameterType="java.lang.String" resultType="cn.zeroeden.domain.User">
         select
@@ -19,11 +61,51 @@
             id = #{id}
     </select>
     <select id="getUserInfoByUserId" parameterType="java.lang.Long" resultType="cn.zeroeden.domain.UserInfo">
-        selcet
+        select
             *
-        from t_user_info
+        from
+            t_user_info
         where
             userId = #{userId}
+    </select>
+    <select id="getUserByUserIds" parameterType="java.util.Set" resultType="cn.zeroeden.domain.UserInfo">
+        select
+            *
+        from
+            t_user_info
+        where
+            1 = 1
+            <if test="userIdList != null and userIdList.size > 0">
+                userId in 
+                <foreach collection="userIdList" item="userId" open="(" close=")" index="index" separator=",">
+                    #{userId}
+                </foreach>
+            </if>
+    </select>
+    <select id="pageCountUserInfos" parameterType="java.util.Map" resultType="java.lang.Integer">
+            select
+                count(1)
+            from
+                t_user_info
+            where
+                1 = 1
+                <if test="nick != null and nick !='' ">
+                    and nick like concat('%',#{nick}, '%')
+                </if>
+            order by id desc
+    </select>
+    <select id="pageListUserInfos" parameterType="java.util.Map" resultType="cn.zeroeden.domain.UserInfo">
+        select
+             *
+        from
+            t_user_info
+        where
+            1 = 1
+            <if test="nick != null and nick !='' ">
+                and nick like concat('%',#{nick}, '%')
+            </if>
+        limit #{start},#{size}
+        order by id desc
     </select>
 
     <insert id="addUser" parameterType="cn.zeroeden.domain.User" useGeneratedKeys="true" keyProperty="id">
@@ -44,7 +126,7 @@
     </insert>
     <insert id="addUserInfo" parameterType="cn.zeroeden.domain.UserInfo">
         insert into
-            t_user(
+            t_user_info(
                    userId,
                    nick,
                    sign,

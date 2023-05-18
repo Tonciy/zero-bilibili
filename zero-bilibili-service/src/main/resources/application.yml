@@ -4,4 +4,6 @@ mybatis:
   type-aliases-package: cn.zeroeden.dao      # \u63A5\u53E3\u8DEF\u5F84
 server:
   port: 9090
-
+spring:
+  profiles:
+    active: test

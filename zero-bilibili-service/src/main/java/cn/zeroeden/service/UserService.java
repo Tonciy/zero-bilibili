@@ -1,6 +1,7 @@
 package cn.zeroeden.service;
 
 import cn.zeroeden.dao.UserDao;
+import cn.zeroeden.domain.PageResult;
 import cn.zeroeden.domain.User;
 import cn.zeroeden.domain.UserInfo;
 import cn.zeroeden.domain.constant.UserConstant;
@@ -8,12 +9,16 @@ import cn.zeroeden.domain.exception.ConditionException;
 import cn.zeroeden.service.util.MD5Util;
 import cn.zeroeden.service.util.RSAUtil;
 import cn.zeroeden.service.util.TokenUtil;
+import com.alibaba.fastjson.JSONObject;
 import com.mysql.cj.util.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.Set;
 
 /**
  * @author: Zero
@@ -115,5 +120,47 @@ public class UserService {
         UserInfo userInfo = userDao.getUserInfoByUserId(userId);
         user.setUserInfo(userInfo);
         return user;
+    }
+
+    public void updateUserInfosByUserId(UserInfo userInfo) {
+        userInfo.setUpdateTime(new Date());
+        userDao.updateUserInfosByUserId(userInfo);
+    }
+
+    public void updateUsersById(User user) throws Exception{
+        Long id = user.getId();
+        User dbUser = userDao.getUserById(id);
+        if(dbUser == null){
+            throw new ConditionException("用户不存在！");
+        }
+        // 用户可能改的是密码
+        if(!StringUtils.isNullOrEmpty(user.getPassword())){
+            String rawPassword = RSAUtil.decrypt(user.getPassword());
+            String md5Password = MD5Util.sign(rawPassword, dbUser.getSalt(), "UTF-8");
+            user.setPassword(md5Password);
+        }
+        user.setUpdateTime(new Date());
+        userDao.updateUsersById(user);
+    }
+
+    public User getUserById(Long followingId) {
+        return userDao.getUserById(followingId);
+    }
+
+    public List<UserInfo> getUserByUserIds(Set<Long> followingIds) {
+        return userDao.getUserByUserIds(followingIds);
+    }
+
+    public PageResult<UserInfo> pageListUserInfos(JSONObject params) {
+        Integer no = params.getInteger("no");
+        Integer size = params.getInteger("size");
+        params.put("start", (no - 1) * size);
+        params.put("limit", size);
+        Integer total = userDao.pageCountUserInfos(params);
+        List<UserInfo> list = new ArrayList<>();
+        if(total > 0){
+            list = userDao.pageListUserInfos(params);
+        }
+        return new PageResult<>(total, list);
     }
 }
