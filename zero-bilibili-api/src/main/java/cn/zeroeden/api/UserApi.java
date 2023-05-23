@@ -112,8 +112,8 @@ public class UserApi {
      * @return 分页数据
      */
     @GetMapping("/user-infos")
-    public JsonResponse<PageResult<UserInfo>> pageListUserInfos(@RequestParam Integer no,
-                                                                @RequestParam Integer size,
+    public JsonResponse<PageResult<UserInfo>> pageListUserInfos(@RequestParam(defaultValue = "1") Integer no,
+                                                                @RequestParam(defaultValue = "10") Integer size,
                                                                 String nick){
         Long userId = userSupport.getCurrentUserId();
         // 封装参数
