@@ -43,6 +43,12 @@
             id = #{id}
 
     </update>
+    <delete id="deleteRefreshToken">
+        delete from
+                   t_refresh_token
+        where
+            userId = #{userId} and refreshToken = #{refreshToken}
+    </delete>
 
     <select id="getUserByPhone" parameterType="java.lang.String" resultType="cn.zeroeden.domain.User">
         select
@@ -107,6 +113,14 @@
         limit #{start},#{size}
         order by id desc
     </select>
+    <select id="getRefreshTokenDetail" parameterType="java.lang.String" resultType="cn.zeroeden.domain.auth.RefreshTokenDetail">
+        select
+            *
+        from
+            t_refresh_token
+        where
+            refreshToken  = #{refreshToken}
+    </select>
 
     <insert id="addUser" parameterType="cn.zeroeden.domain.User" useGeneratedKeys="true" keyProperty="id">
         insert into
@@ -141,5 +155,17 @@
                   #{birth},
                   #{createTime}
                          )
+    </insert>
+    <insert id="addRefreshToken">
+            insert into
+                t_refresh_token(
+                                userId,
+                                refreshToken,
+                                createTime
+            ) values (
+                      #{userId},
+                      #{refreshToken},
+                      #{createTime}
+                                 )
     </insert>
 </mapper>

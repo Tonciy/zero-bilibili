@@ -2,9 +2,12 @@ package cn.zeroeden.dao;
 
 import cn.zeroeden.domain.User;
 import cn.zeroeden.domain.UserInfo;
+import cn.zeroeden.domain.auth.RefreshTokenDetail;
 import com.alibaba.fastjson.JSONObject;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -30,4 +33,13 @@ public interface UserDao {
     Integer pageCountUserInfos(Map<String, Object> params);
 
     List<UserInfo> pageListUserInfos(Map<String, Object> params);
+
+    Integer deleteRefreshToken(@Param("refreshToken") String refreshToken,
+                               @Param("userId") Long userId);
+
+    Integer addRefreshToken(@Param("refreshToken") String refreshToken,
+                            @Param("userId") Long userId,
+                            @Param("createTime") Date createDate);
+
+    RefreshTokenDetail getRefreshTokenDetail(String refreshToken);
 }

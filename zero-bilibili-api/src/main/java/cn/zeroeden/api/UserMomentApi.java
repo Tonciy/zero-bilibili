@@ -4,8 +4,10 @@ import cn.zeroeden.api.support.UserSupport;
 import cn.zeroeden.domain.JsonResponse;
 import cn.zeroeden.domain.UserMoment;
 import cn.zeroeden.domain.annotation.ApiLimitedRole;
+import cn.zeroeden.domain.annotation.DataLimited;
 import cn.zeroeden.domain.constant.AuthRoleConstant;
 import cn.zeroeden.service.UserMomnetService;
+import lombok.Data;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -34,6 +36,7 @@ public class UserMomentApi {
      * @param userMoment 动态信息（具体内容不在这）
      * @return 状态值
      */
+    @DataLimited
     @ApiLimitedRole(limitedRoleCodeList = {AuthRoleConstant.ROLE_LV0})
     @PostMapping("/user-moments")
     public JsonResponse<String> addUserMoments(@RequestBody UserMoment userMoment) throws Exception{

@@ -12,7 +12,9 @@ import com.alibaba.fastjson.JSONObject;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author: Zero
@@ -129,5 +131,43 @@ public class UserApi {
             result.setList(checkedUserInfoList);
         }
         return new JsonResponse<>(result);
+    }
+
+
+    /**
+     * 用户登录-双token  资源访问token + refresh token
+     * @param user 用户信息
+     * @return 双token
+     */
+    @PostMapping("/user-dts")
+    public JsonResponse<Map<String, Object>> loginForDts(@RequestBody User user) throws Exception {
+        Map<String, Object> map = userService.loginForDts(user);
+        return new JsonResponse<>(map);
+    }
+
+    /**
+     * 退出登录
+     * @param request 请求头
+     * @return 状态值
+     */
+    @DeleteMapping("/refresh-tokens")
+    public JsonResponse<String> logout(HttpServletRequest request){
+        String refreshToken = request.getHeader("refreshToken");
+        Long userId = userSupport.getCurrentUserId();
+        userService.logout(refreshToken, userId);
+        return JsonResponse.success();
+    }
+
+
+    /**
+     * 登录过期后，获取新的资源访问token
+     * @param request 请求头
+     * @return 资源访问token值
+     */
+    @PostMapping("/access-tokens")
+    public JsonResponse<String> refreshAccessToken(HttpServletRequest request) throws Exception {
+        String refreshToken = request.getHeader("refreshToken");
+        String accessToken = userService.refreshAccessToken(refreshToken);
+        return new JsonResponse<>(accessToken);
     }
 }

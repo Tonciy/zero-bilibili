@@ -4,6 +4,7 @@ import cn.zeroeden.dao.UserDao;
 import cn.zeroeden.domain.PageResult;
 import cn.zeroeden.domain.User;
 import cn.zeroeden.domain.UserInfo;
+import cn.zeroeden.domain.auth.RefreshTokenDetail;
 import cn.zeroeden.domain.constant.UserConstant;
 import cn.zeroeden.domain.exception.ConditionException;
 import cn.zeroeden.service.util.MD5Util;
@@ -15,10 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author: Zero
@@ -32,6 +30,9 @@ public class UserService {
     @Resource
     private UserDao userDao;
 
+
+    @Resource
+    private UserAuthService userAuthService;
     /**
      * 注册 用户账号和用户个人信息
      * @param user 用户账号信息
@@ -71,6 +72,8 @@ public class UserService {
         userInfo.setNick(UserConstant.DEFAULT_NICK);
         userInfo.setGender(UserConstant.GENDER_MALE);
         userDao.addUserInfo(userInfo);
+        // 6. 添加默认角色
+        userAuthService.addUserDefaultRole(user.getId());
     }
 
     /**
@@ -162,5 +165,56 @@ public class UserService {
             list = userDao.pageListUserInfos(params);
         }
         return new PageResult<>(total, list);
+    }
+
+    public Map<String, Object> loginForDts(User user) throws Exception {
+
+        String phone = user.getPhone();
+        if(StringUtils.isNullOrEmpty(phone)){
+            throw new ConditionException("手机号码不能为空！");
+        }
+        User dbUser = this.getUserByPhone(phone);
+        if(dbUser == null){
+            throw new ConditionException("当前用户不存在！");
+        }
+        String salt = dbUser.getSalt();
+        String password = user.getPassword();
+        String rawPassword = "";
+        try {
+            rawPassword = RSAUtil.decrypt(password);
+        }catch (Exception e){
+            throw new ConditionException("密码解密失败！");
+        }
+        String md5Password = MD5Util.sign(rawPassword, salt, "UTF-8");
+        if(StringUtils.isNullOrEmpty(dbUser.getPassword()) &&!dbUser.getPassword().equals(md5Password)){
+            throw new ConditionException("密码错误！");
+        }
+        Long userId = dbUser.getId();
+        String accessToken = TokenUtil.generateToken(userId);
+        String refreshToken = TokenUtil.generateRefreshToken(userId);
+        // 保存refresh token 到数据库
+        userDao.deleteRefreshToken(refreshToken, userId);
+        userDao.addRefreshToken(refreshToken, userId, new Date());
+        Map<String, Object> result = new HashMap<>();
+        result.put("accessToken", accessToken);
+        result.put("refreshToken", refreshToken);
+        return result;
+    }
+
+    public void logout(String refreshToken, Long userId) {
+        userDao.deleteRefreshToken(refreshToken, userId);
+    }
+
+    public String refreshAccessToken(String refreshToken) throws Exception {
+        RefreshTokenDetail refreshTokenDetail = userDao.getRefreshTokenDetail(refreshToken);
+        if(refreshTokenDetail == null){
+            // 不存在fefresh token，则禁止生成新的资源访问token
+            // 此时返回的状态码应该与“555”区别开来，方便前端用拦截器处理请求，虽然都是access token过期
+            //     但是555可以有机会再次获取新的access Token
+            //     而556则直接禁止，前端可以直接提示token过期即可
+            throw new ConditionException("556", "token过期");
+        }
+        Long userId = refreshTokenDetail.getUserId();
+        return TokenUtil.generateToken(userId);
     }
 }

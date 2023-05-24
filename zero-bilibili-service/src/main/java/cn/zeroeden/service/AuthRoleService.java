@@ -1,5 +1,7 @@
 package cn.zeroeden.service;
 
+import cn.zeroeden.dao.AuthRoleDao;
+import cn.zeroeden.domain.auth.AuthRole;
 import cn.zeroeden.domain.auth.AuthRoleElementOperation;
 import cn.zeroeden.domain.auth.AuthRoleMenu;
 import org.springframework.stereotype.Service;
@@ -24,11 +26,17 @@ public class AuthRoleService {
     private AuthRoleMenuService auAthRoleMenuService;
 
 
+    @Resource
+    private AuthRoleDao authRoleDao;
     public List<AuthRoleElementOperation> getRoleElementOperationByRoleIds(Set<Long> roleIdSet) {
         return authRoleElementOperationService.getRoleElementOperationByRoleIds(roleIdSet);
     }
 
     public List<AuthRoleMenu> getAuthRoleMenusByRoleIds(Set<Long> roleIdSet) {
         return auAthRoleMenuService.getAuthRoleMenusByRoleIds(roleIdSet);
+    }
+
+    public AuthRole getRoleByCode(String code) {
+        return authRoleDao.getRoleByCode(code);
     }
 }

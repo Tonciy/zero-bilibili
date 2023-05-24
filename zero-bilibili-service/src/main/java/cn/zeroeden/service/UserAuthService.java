@@ -1,13 +1,12 @@
 package cn.zeroeden.service;
 
-import cn.zeroeden.domain.auth.AuthRoleElementOperation;
-import cn.zeroeden.domain.auth.AuthRoleMenu;
-import cn.zeroeden.domain.auth.UserAuthorities;
-import cn.zeroeden.domain.auth.UserRole;
+import cn.zeroeden.domain.auth.*;
+import cn.zeroeden.domain.constant.AuthRoleConstant;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -39,5 +38,14 @@ public class UserAuthService {
         userAuthorities.setRoleMenuList(authRoleMenuList);
         userAuthorities.setRoleElementOperationList(roleElementOperationList);
         return userAuthorities;
+    }
+
+    public void addUserDefaultRole(Long userId) {
+        UserRole userRole = new UserRole();
+        AuthRole role = authRoleService.getRoleByCode(AuthRoleConstant.ROLE_LV0);
+        userRole.setRoleId(role.getId());
+        userRole.setUserId(userId);
+        userRole.setCreateTime(new Date());
+        userRoleService.addUsrRole(userRole);
     }
 }
