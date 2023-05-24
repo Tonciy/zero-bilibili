@@ -35,5 +35,5 @@ public class AuthRoleMenu {
     /**
      * 具体菜单
      */
-    private Menu menu;
+    private AuthMenu authMenu;
 }

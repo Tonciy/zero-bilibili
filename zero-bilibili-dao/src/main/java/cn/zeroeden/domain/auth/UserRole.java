@@ -25,4 +25,9 @@ public class UserRole {
 
     private Date createTime;
 
+
+    private String roleName;
+
+    private String roleCode;
+
 }
