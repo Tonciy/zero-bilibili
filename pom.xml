@@ -96,6 +96,14 @@
             <artifactId>spring-boot-starter-aop</artifactId>
             <version>2.5.1</version>
         </dependency>
+
+<!--        fastdfs 文件存储-->
+        <dependency>
+            <groupId>com.github.tobato</groupId>
+            <artifactId>fastdfs-client</artifactId>
+            <version>1.27.2</version>
+        </dependency>
+
     </dependencies>
 
 

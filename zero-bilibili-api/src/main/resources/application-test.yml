@@ -19,3 +19,8 @@ rocketmq.name.server.address=127.0.0.1:9876
 
 server:
   port: 15005
+
+
+
+fdfs:
+  tracker-list: 192.168.200.130:22122
