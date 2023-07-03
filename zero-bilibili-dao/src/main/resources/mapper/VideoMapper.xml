@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD MAPPER 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.zeroeden.dao.VideoDao">
+
+    <insert id="addVideos" parameterType="cn.zeroeden.domain.Video" keyProperty="id" useGeneratedKeys="true">
+        insert into
+            t_video(
+                    userId,
+                    url,
+                    thumbnail,
+                    title,
+                    type,
+                    duration,
+                    area,
+                    description,
+                    createTime
+        ) values (
+                  #{userId},
+                  #{url},
+                  #{thumbnail},
+                  #{title},
+                  #{type},
+                  #{duration},
+                  #{area},
+                  #{description},
+                  #{createTime}
+                         )
+    </insert>
+    <insert id="addVideoLike" parameterType="cn.zeroeden.domain.VideoLike" useGeneratedKeys="true" keyProperty="id">
+        insert into
+            t_video_like(
+                         userId,
+                         videoId,
+                         createTime
+        ) values (
+                  #{userId},
+                  #{videoId},
+                  #{createTime}
+                         )
+    </insert>
+    <update id="batchAddVideoTags" parameterType="java.util.List">
+        insert into
+            t_video_tag(
+                        videoId,
+                        tagId,
+                        createTime
+        ) values 
+            <foreach collection="tagsList" item="videoTag" separator=",">
+                (
+                 #{videoTag.videoId},
+                 #{videoTag.tagId},
+                 #{videoTag.createTime}
+                )
+            </foreach>
+    </update>
+    <delete id="deleteVideoLikeByUserIdAndVideoId">
+        delete from
+                   t_video_like
+        where
+            userId = #{userId}
+            and videoId = #{videoId}
+    </delete>
+    <select id="pageCountVideos" parameterType="java.util.Map" resultType="java.lang.Integer">
+        select
+            count(1)
+        from
+            t_video
+        where
+            1 = 1
+            <if test="area != null and area != '' ">
+                and area = #{area}
+            </if>
+    </select>
+    <select id="pageListVidoes" parameterType="java.util.Map" resultType="cn.zeroeden.domain.Video">
+        select
+            *
+        from
+            t_video
+        where
+            1 = 1
+            <if test="area != null and area != '' ">
+                and area = #{area}
+            </if>
+        order by id desc
+        limit #{start},#{limit}
+
+    </select>
+    <select id="getVideoByVideoId" resultType="cn.zeroeden.domain.Video" parameterType="java.lang.Long">
+        select
+            *
+        from
+            t_video_like
+        where
+            videoId = #{videoId}
+    </select>
+    <select id="getVideoLikeByVideoIdAndUserId" resultType="cn.zeroeden.domain.VideoLike">
+        select
+            *
+        from
+            t_video_like
+        where
+            videoId = #{videoId}
+            and userId = #{userId}
+    </select>
+    <select id="countVideoLikes" resultType="java.lang.Long">
+        select
+            count(1)
+        from
+            t_video_like
+        where
+            videoId = #{videoId}
+    </select>
+</mapper>

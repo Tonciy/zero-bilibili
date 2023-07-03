@@ -1,7 +1,11 @@
 package cn.zeroeden.service.util;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 
 /**
@@ -33,5 +37,17 @@ public class MD5Util {
 		} else {
 			return content.getBytes();
 		}
+	}
+
+	public static String getFileMD5(MultipartFile file) throws Exception {
+		InputStream is = file.getInputStream();
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		byte[] buffer = new byte[1024];
+		int len = 0;
+		while ((len = is.read(buffer) ) > 0){
+			baos.write(buffer, 0, len);
+		}
+		is.close();
+		return DigestUtils.md5Hex(baos.toByteArray());
 	}
 }
