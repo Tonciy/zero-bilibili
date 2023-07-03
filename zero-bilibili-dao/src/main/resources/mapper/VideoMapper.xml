@@ -38,6 +38,20 @@
                   #{createTime}
                          )
     </insert>
+    <insert id="addVideoCollection" keyProperty="id" useGeneratedKeys="true" parameterType="cn.zeroeden.domain.VideoCollection">
+        insert into
+            t_video_collection(
+                               videoId,
+                               userId,
+                               groupId,
+                               createTime
+        ) values (
+                  #{videoId},
+                  #{userId},
+                  #{groupId},
+                  #{createTime}
+                         )
+    </insert>
     <update id="batchAddVideoTags" parameterType="java.util.List">
         insert into
             t_video_tag(
@@ -56,6 +70,13 @@
     <delete id="deleteVideoLikeByUserIdAndVideoId">
         delete from
                    t_video_like
+        where
+            userId = #{userId}
+            and videoId = #{videoId}
+    </delete>
+    <delete id="deleteVideoCollectionByUserIdAndVideoId">
+        delete from
+                   t_video_collection
         where
             userId = #{userId}
             and videoId = #{videoId}
@@ -109,5 +130,30 @@
             t_video_like
         where
             videoId = #{videoId}
+    </select>
+    <select id="getVideoById" resultType="cn.zeroeden.domain.Video">
+        select
+            *
+        from
+            t_video
+        where
+            id = #{id}
+    </select>
+    <select id="countVideoCollections" resultType="java.lang.Long">
+        select
+            count(1)
+        from
+            t_video_collection
+        where
+            videoId = #{videoId}
+    </select>
+    <select id="getVideoCollectionByVideoIdAndUserID" resultType="cn.zeroeden.domain.VideoCollection">
+        select
+            *
+        from
+            t_video_collection
+        where
+            videoId = #{videoId}
+            and userId = #{userId};
     </select>
 </mapper>

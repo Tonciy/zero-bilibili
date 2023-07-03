@@ -4,6 +4,7 @@ import cn.zeroeden.api.support.UserSupport;
 import cn.zeroeden.domain.JsonResponse;
 import cn.zeroeden.domain.PageResult;
 import cn.zeroeden.domain.Video;
+import cn.zeroeden.domain.VideoCollection;
 import cn.zeroeden.service.UserService;
 import cn.zeroeden.service.VideoService;
 import org.springframework.web.bind.annotation.*;
@@ -111,5 +112,48 @@ public class VideoApi {
         Map<String, Object> result = videoService.getVideoLikes(videoId, userId);
         return new JsonResponse<>(result);
     }
-    
+
+
+    /**
+     * 收藏视频
+     * @param videoCollection 视频相关信息
+     * @return 状态值
+     */
+    @PostMapping("/video-collections")
+    public JsonResponse<String> addVideoCollection(@RequestBody VideoCollection videoCollection){
+        Long userId = userSupport.getCurrentUserId();
+        videoService.addVideoCollection(videoCollection,userId);
+        return JsonResponse.success();
+    }
+
+
+    /**
+     * 取消收藏视频
+     * @param videoId 视频id
+     * @return 状态值
+     */
+    @DeleteMapping("/video-collections")
+    public JsonResponse<String> deleteVideoCollection(@RequestParam Long videoId){
+        Long userId = userSupport.getCurrentUserId();
+        videoService.delteVideoCollectionByUserIdAndVideoId(userId, videoId);
+        return JsonResponse.success();
+    }
+
+
+    /**
+     * 查询视频收藏数量
+     * @param videoId
+     * @return
+     */
+    @GetMapping("/video-collection")
+    public JsonResponse<Map<String,Object>> getVideoCollections(@RequestParam Long videoId){
+        Long userId = null;
+        try {
+            userId = userSupport.getCurrentUserId();
+        }catch (Exception e){
+
+        }
+        Map<String, Object> result = videoService.getVideoCollectionsByVideoIdAndUserId(videoId, userId);
+        return new JsonResponse<>(result);
+    }
 }

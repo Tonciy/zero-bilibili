@@ -94,4 +94,37 @@ public class VideoService {
         return result;
 
     }
+
+    @Transactional
+    public void addVideoCollection(VideoCollection videoCollection, Long userId) {
+        Long videoId = videoCollection.getVideoId();
+        Long groupId = videoCollection.getGroupId();
+        if(videoCollection == null || groupId == null){
+            throw new ConditionException("参数异常！");
+        }
+        Video video = videoDao.getVideoById(videoId);
+        if(video == null){
+            throw new ConditionException("非法视频！");
+        }
+        //删除原有视频收藏 （这个方法支持更新操作,所以才有下面的删除语句）
+        videoDao.deleteVideoCollectionByUserIdAndVideoId(userId, videoId);
+        // 添加新的视频收藏
+        videoCollection.setUserId(userId);
+        videoCollection.setCreateTime(new Date());
+        videoDao.addVideoCollection(videoCollection);
+    }
+
+    public void delteVideoCollectionByUserIdAndVideoId(Long userId, Long videoId) {
+        videoDao.deleteVideoCollectionByUserIdAndVideoId(userId,videoId);
+    }
+
+    public Map<String, Object> getVideoCollectionsByVideoIdAndUserId(Long videoId, Long userId) {
+        Long count = videoDao.countVideoCollections(videoId);
+        VideoCollection videoCollection = videoDao.getVideoCollectionByVideoIdAndUserID(videoId, userId);
+        boolean like = videoCollection != null;
+        Map<String, Object> result = new HashMap<>();
+        result.put("count", count);
+        result.put("like", like);
+        return result;
+    }
 }

@@ -2,6 +2,7 @@ package cn.zeroeden.dao;
 
 
 import cn.zeroeden.domain.Video;
+import cn.zeroeden.domain.VideoCollection;
 import cn.zeroeden.domain.VideoLike;
 import cn.zeroeden.domain.VideoTag;
 import org.apache.ibatis.annotations.Mapper;
@@ -30,4 +31,16 @@ public interface VideoDao {
 
 
     Long countVideoLikes(Long videoId);
+
+    Video getVideoById(Long videoId);
+
+    Integer deleteVideoCollectionByUserIdAndVideoId(@Param("userId") Long userId,
+                                                   @Param("videoId") Long videoId);
+
+    Integer addVideoCollection(VideoCollection videoCollection);
+
+    Long countVideoCollections(Long videoId);
+
+    VideoCollection getVideoCollectionByVideoIdAndUserID(@Param("videoId") Long videoId,
+                                                         @Param("userId") Long userId);
 }
