@@ -29,6 +29,9 @@ public class VideoService {
     @Resource
     private FastDFSUtil fastDFSUtil;
 
+    @Resource
+    private UserCoinService userCoinService;
+
     @Transactional
     public void addVideo(Video video) {
         Date now = new Date();
@@ -122,6 +125,54 @@ public class VideoService {
         Long count = videoDao.countVideoCollections(videoId);
         VideoCollection videoCollection = videoDao.getVideoCollectionByVideoIdAndUserID(videoId, userId);
         boolean like = videoCollection != null;
+        Map<String, Object> result = new HashMap<>();
+        result.put("count", count);
+        result.put("like", like);
+        return result;
+    }
+
+    @Transactional
+    public void addVideoCoins(VideoCoin videoCoin, Long userId) {
+        Long videoId = videoCoin.getVideoId();
+        Integer amount = videoCoin.getAmount();
+        if (videoId == null) {
+            throw new ConditionException("参数异常！");
+        }
+        Video video = videoDao.getVideoByVideoId(videoId);
+        if(video == null){
+            throw new ConditionException("非法视频！");
+        }
+        // 查询当前用户是否有足够的硬币
+        Integer userCoinsAmount = userCoinService.getUserCoinsAmountByUserId(userId);
+        userCoinsAmount = userCoinsAmount == null? 0: userCoinsAmount;
+        if(amount > userCoinsAmount){
+            throw new ConditionException("硬币数量不足！");
+        }
+        // 查询当前登录用户对该视频已经投币了多少硬币
+        VideoCoin dbVideoCoin = videoDao.getVideoCoinByVideoIdAndUserId(videoId, userId);
+
+        if(dbVideoCoin == null){
+            // 新增视频投币
+            videoCoin.setUserId(userId);
+            videoCoin.setCreateTime(new Date());
+            videoDao.addVideoCoin(videoCoin);
+        }else{
+            // 后续补增投币
+            Integer dbAmout = dbVideoCoin.getAmount();
+            dbAmout += amount;
+            videoCoin.setUserId(userId);
+            videoCoin.setAmount(dbAmout);
+            videoCoin.setUpdateTime(new Date());
+            videoDao.updateVideoCoin(videoCoin);
+        }
+        // 更新用户具有的硬币数量
+        userCoinService.updateUserCoinAmountByUserId(userId, (userCoinsAmount - amount));
+    }
+
+    public Map<String, Object> getVideoCoins(Long videoId, Long userId) {
+        Long count = videoDao.countVideoCoinsAmount(videoId);
+        VideoCoin videoCoin = videoDao.getVideoCoinByVideoIdAndUserId(videoId, userId);
+        boolean like = videoCoin != null;
         Map<String, Object> result = new HashMap<>();
         result.put("count", count);
         result.put("like", like);

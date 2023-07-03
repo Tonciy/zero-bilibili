@@ -1,10 +1,7 @@
 package cn.zeroeden.api;
 
 import cn.zeroeden.api.support.UserSupport;
-import cn.zeroeden.domain.JsonResponse;
-import cn.zeroeden.domain.PageResult;
-import cn.zeroeden.domain.Video;
-import cn.zeroeden.domain.VideoCollection;
+import cn.zeroeden.domain.*;
 import cn.zeroeden.service.UserService;
 import cn.zeroeden.service.VideoService;
 import org.springframework.web.bind.annotation.*;
@@ -156,4 +153,36 @@ public class VideoApi {
         Map<String, Object> result = videoService.getVideoCollectionsByVideoIdAndUserId(videoId, userId);
         return new JsonResponse<>(result);
     }
+
+
+    /**
+     * 视频投币
+     * @param videoCoin 投币信息
+     * @return 状态值
+     */
+    @PostMapping("/video-coins")
+    public JsonResponse<String> addVideoCoins(@RequestBody VideoCoin videoCoin){
+        Long userId = userSupport.getCurrentUserId();
+        videoService.addVideoCoins(videoCoin, userId);
+        return JsonResponse.success();
+    }
+
+    /**
+     * 查询视频投币数量
+     * @param videoId 视频id
+     * @return 对应值
+     */
+    @GetMapping("/video-coins")
+    public JsonResponse<Map<String, Object>> getVideoCoins(@RequestParam Long videoId){
+        Long userId = null;
+        try {
+            userId = userSupport.getCurrentUserId();
+        }catch (Exception e){
+
+        }
+        Map<String, Object> result = videoService.getVideoCoins(videoId, userId);
+        return new JsonResponse<>(result);
+    }
+
+
 }

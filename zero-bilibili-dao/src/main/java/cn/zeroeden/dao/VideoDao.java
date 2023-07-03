@@ -1,10 +1,7 @@
 package cn.zeroeden.dao;
 
 
-import cn.zeroeden.domain.Video;
-import cn.zeroeden.domain.VideoCollection;
-import cn.zeroeden.domain.VideoLike;
-import cn.zeroeden.domain.VideoTag;
+import cn.zeroeden.domain.*;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -43,4 +40,13 @@ public interface VideoDao {
 
     VideoCollection getVideoCollectionByVideoIdAndUserID(@Param("videoId") Long videoId,
                                                          @Param("userId") Long userId);
+
+    VideoCoin getVideoCoinByVideoIdAndUserId(@Param("videoId") Long videoId,
+                                             @Param("userId") Long userId);
+
+    Integer addVideoCoin(VideoCoin videoCoin);
+
+    Integer updateVideoCoin(VideoCoin videoCoin);
+
+    Long countVideoCoinsAmount(Long videoId);
 }
