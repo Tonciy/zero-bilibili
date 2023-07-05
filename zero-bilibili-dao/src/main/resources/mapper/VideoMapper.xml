@@ -69,6 +69,25 @@
                #{updateTime}
               )
     </insert>
+    <insert id="addVideoComment" parameterType="cn.zeroeden.domain.VideoComment" keyProperty="id" useGeneratedKeys="true">
+        insert into
+            t_video_comment(
+                          videoId,
+                            userId,
+                            comment,
+                            replyUserId,
+                            rootId,
+                            createTime
+        ) values (
+                  #{videoId},
+                  #{userId},
+                  #{videoId},
+                  #{comment},
+                  #{replyUserId},
+                  #{rootId},
+                  #{createTime}
+                         )
+    </insert>
     <update id="batchAddVideoTags" parameterType="java.util.List">
         insert into
             t_video_tag(
@@ -92,6 +111,7 @@
         where
             id = #{id};
     </update>
+
     <delete id="deleteVideoLikeByUserIdAndVideoId">
         delete from
                    t_video_like
@@ -198,5 +218,46 @@
             t_video_coin
         where
             videoId = #{videoId}
+    </select>
+    <select id="pageCountVideoComments" resultType="java.lang.Integer">
+            select
+                count(1)
+            from
+                t_video_comment
+            where
+                videoId = #{videoId}
+              and rootId is null
+
+    </select>
+    <select id="pageListVideoComments" resultType="cn.zeroeden.domain.VideoComment">
+        select
+            *
+        from
+            t_video_comment
+        where
+            videoId = #{videoId}
+            and rootId is null
+        order by id desc
+        limit #{start}, #{limit}
+    </select>
+    <select id="batchGetVideoCommentsByRootIds" resultType="cn.zeroeden.domain.VideoComment">
+        select
+            *
+        from
+            t_video_comment
+        where
+            rootId in
+            <foreach collection="parentList" separator="," open="(" close=")" item="child">
+                #{child}
+            </foreach>
+        order by id
+    </select>
+    <select id="getVideoDetailById" resultType="cn.zeroeden.domain.Video">
+        select
+            *
+        from
+            t_video
+        where
+            id = #{id}
     </select>
 </mapper>

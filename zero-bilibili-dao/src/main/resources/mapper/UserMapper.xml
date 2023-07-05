@@ -121,6 +121,17 @@
         where
             refreshToken  = #{refreshToken}
     </select>
+    <select id="batchGetUserInfoByUserIds" resultType="cn.zeroeden.domain.UserInfo">
+        select
+            *
+        from
+            t_user_info
+        where
+            userId in
+        <foreach collection="userIdList" item="userId" open="(" close=")" separator=",">
+            #{userId}
+        </foreach>
+    </select>
 
     <insert id="addUser" parameterType="cn.zeroeden.domain.User" useGeneratedKeys="true" keyProperty="id">
         insert into

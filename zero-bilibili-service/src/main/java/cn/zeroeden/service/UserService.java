@@ -217,4 +217,8 @@ public class UserService {
         Long userId = refreshTokenDetail.getUserId();
         return TokenUtil.generateToken(userId);
     }
+
+    public List<UserInfo> batchGetUserInfoByUserIds(Set<Long> userIdList) {
+        return userDao.batchGetUserInfoByUserIds(userIdList);
+    }
 }
