@@ -5,6 +5,7 @@ import cn.zeroeden.domain.UserFollowing;
 import cn.zeroeden.domain.UserMoment;
 import cn.zeroeden.domain.constant.UserMomentConstant;
 import cn.zeroeden.service.UserFollowingService;
+import cn.zeroeden.service.websocket.WebSocketService;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.mysql.cj.util.StringUtils;
@@ -21,6 +22,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.core.RedisTemplate;
 
 import javax.annotation.Resource;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -83,6 +85,50 @@ public class RocketMQConfig {
                     subscribedLsit.add(userMoment);
                     resRedisTemplate.opsForValue().set(key, JSONObject.toJSONString(subscribedLsit));
                 }
+                return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
+            }
+        });
+        consumer.start();
+        return consumer;
+    }
+
+    /**
+     * 弹幕生产者
+     */
+    @Bean("danmusProducer")
+    public DefaultMQProducer danmusProducer() throws Exception{
+        DefaultMQProducer producer = new DefaultMQProducer(UserMomentConstant.GROUP_DANMUS);
+        producer.setNamespace(nameServerAddr);
+        producer.start();
+        return producer;
+    }
+
+    /**
+     * 弹幕消费者
+     */
+    @Bean("danmusConsumer")
+    public DefaultMQPushConsumer danmusConsumer() throws Exception{
+        DefaultMQPushConsumer consumer = new DefaultMQPushConsumer(UserMomentConstant.GROUP_MOMENTS);
+        consumer.setNamespace(nameServerAddr);
+        consumer.subscribe(UserMomentConstant.TOPIC_MOMENTS, "*");
+        consumer.registerMessageListener(new MessageListenerConcurrently() {
+            @Override
+            public ConsumeConcurrentlyStatus consumeMessage(List<MessageExt> msgs, ConsumeConcurrentlyContext consumeConcurrentlyContext) {
+                MessageExt msg = msgs.get(0);
+                byte[] msgByte = msg.getBody();
+                java.lang.String bodyStr = new java.lang.String(msgByte);
+                JSONObject jsonObject = JSONObject.parseObject(bodyStr);
+                java.lang.String sessionId = jsonObject.getString("sessionId");
+                String message = jsonObject.getString("message");
+                WebSocketService webSocketService = WebSocketService.WEBSOCKET_MAP.get(sessionId);
+                if(webSocketService.getSession().isOpen()){
+                    try {
+                        webSocketService.sendMessage(message);
+                    }catch (IOException e){
+                        e.printStackTrace();
+                    }
+                }
+
                 return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
             }
         });

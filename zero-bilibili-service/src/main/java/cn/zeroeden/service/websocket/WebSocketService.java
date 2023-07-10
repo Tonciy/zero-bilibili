@@ -1,11 +1,16 @@
 package cn.zeroeden.service.websocket;
 
 import cn.zeroeden.domain.Danmu;
+import cn.zeroeden.domain.constant.UserMomentConstant;
 import cn.zeroeden.service.DanmuService;
+import cn.zeroeden.service.util.RocketMQUtil;
 import cn.zeroeden.service.util.TokenUtil;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.JSONPObject;
 import com.mysql.cj.util.StringUtils;
 import lombok.extern.log4j.Log4j;
+import org.apache.rocketmq.client.producer.DefaultMQProducer;
+import org.apache.rocketmq.common.message.Message;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +18,7 @@ import javax.websocket.*;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -81,14 +87,17 @@ public class WebSocketService {
 
     @OnMessage
     public void onMessage(String message) throws IOException {
+        DefaultMQProducer danmusProducer = (DefaultMQProducer) APPLICATION_CONTEXT.getBean("danmusProducer");
         if(!StringUtils.isNullOrEmpty(message)){
             try {
                 // 群发消息
                 for (Map.Entry<String, WebSocketService> stringWebSocketServiceEntry : WEBSOCKET_MAP.entrySet()) {
                     WebSocketService value = stringWebSocketServiceEntry.getValue();
-                    if(value.session.isOpen()){
-                        value.sendMessage(message);
-                    }
+                    JSONObject jsonpObject = new JSONObject();
+                    jsonpObject.put("message", message);
+                    jsonpObject.put("sessionId", sessionId);
+                    Message msg = new Message(UserMomentConstant.TOPIC_DANMUS, jsonpObject.toJSONString().getBytes(StandardCharsets.UTF_8));
+                    RocketMQUtil.asyncSendMsg(danmusProducer, msg);
                 }
                 if(this.userId != null){
                     // 保存弹幕到数据库
@@ -118,4 +127,11 @@ public class WebSocketService {
         this.session.getBasicRemote().sendText(message);
     }
 
+    public Session getSession() {
+        return session;
+    }
+
+    public void setSession(Session session) {
+        this.session = session;
+    }
 }

@@ -16,4 +16,6 @@ public class UserMomentConstant {
      * 消费者监听主题
      */
     public static final String TOPIC_MOMENTS = "Topic-Moments";
+    public static final String GROUP_DANMUS = "DanmusGroup";
+    public static final String TOPIC_DANMUS = "Topic-Danmus";
 }
