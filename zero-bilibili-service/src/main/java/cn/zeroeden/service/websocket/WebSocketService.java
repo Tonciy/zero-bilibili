@@ -5,6 +5,7 @@ import cn.zeroeden.domain.constant.UserMomentConstant;
 import cn.zeroeden.service.DanmuService;
 import cn.zeroeden.service.util.RocketMQUtil;
 import cn.zeroeden.service.util.TokenUtil;
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONPObject;
 import com.mysql.cj.util.StringUtils;
@@ -12,6 +13,7 @@ import lombok.extern.log4j.Log4j;
 import org.apache.rocketmq.client.producer.DefaultMQProducer;
 import org.apache.rocketmq.common.message.Message;
 import org.springframework.context.ApplicationContext;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import javax.websocket.*;
@@ -52,6 +54,22 @@ public class WebSocketService {
         WebSocketService.APPLICATION_CONTEXT = ac;
     }
 
+    /**
+     * 定时通知前端在线人数（暂时未区分视频）
+     * @throws IOException
+     */
+    @Scheduled(fixedRate = 5000)
+    private void notiiceLIneCount() throws IOException{
+        for (Map.Entry<String, WebSocketService> stringWebSocketServiceEntry : WebSocketService.WEBSOCKET_MAP.entrySet()) {
+            WebSocketService webSocketService = stringWebSocketServiceEntry.getValue();
+            if(webSocketService.getSession().isOpen()){
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put("onlineCount", ONLINE_COUNT.get());
+                jsonObject.put("msg","当前在线人数为:" + ONLINE_COUNT.get());
+                webSocketService.sendMessage(jsonObject.toJSONString());
+            }
+        }
+    }
 
     @OnOpen
     public void openSession(Session session, @PathParam("token") String token){
@@ -105,7 +123,8 @@ public class WebSocketService {
                     danmu.setUserId(userId);
                     danmu.setCreateTime(new Date());
                     DanmuService danmuService = (DanmuService) APPLICATION_CONTEXT.getBean("danmuService");
-                    danmuService.addDanmu(danmu);
+//                    danmuService.addDanmu(danmu);
+                    danmuService.asyncAddDanmu(danmu);
                     // 保存弹幕到Redis
                     danmuService.addDanmusToRedis(danmu);
                 }
