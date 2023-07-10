@@ -1,7 +1,9 @@
 package cn.zeroeden;
 
+import cn.zeroeden.service.websocket.WebSocketService;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 /**
@@ -14,6 +16,8 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableTransactionManagement
 public class BilibiliApp {
     public static void main(String[] args) {
-        SpringApplication.run(BilibiliApp.class, args);
+        ConfigurableApplicationContext ap = SpringApplication.run(BilibiliApp.class, args);
+        // 多例模式下注入单例bean
+        WebSocketService.setApplicationContext(ap);
     }
 }
