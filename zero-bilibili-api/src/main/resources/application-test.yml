@@ -26,3 +26,7 @@ fdfs:
   tracker-list: 192.168.200.130:22122
   http:
     storage-addr: http://192.168.200.130:8888/group1/
+
+    
+elasticsearch:
+  url: 192.168.200.130:9200
