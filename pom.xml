@@ -114,6 +114,13 @@
             <version>2.5.1</version>
         </dependency>
 
+<!--        解析UserAgent头-->
+        <dependency>
+            <groupId>eu.bitwalker</groupId>
+            <artifactId>UserAgentUtils</artifactId>
+            <version>1.21</version>
+        </dependency>
+
     </dependencies>
 
 

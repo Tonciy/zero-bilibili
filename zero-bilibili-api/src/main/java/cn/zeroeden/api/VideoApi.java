@@ -222,4 +222,34 @@ public class VideoApi {
         Map<String, Object> result = videoService.getVideoDetails(videoId);
         return new JsonResponse<>(result);
     }
+
+    /**
+     * 添加视频观看记录
+     * @param videoView 观看记录实体
+     * @param request 额外信息
+     * @return 状态值
+     */
+    public JsonResponse<String> addVideoView(@RequestBody VideoView videoView,
+                                             HttpServletRequest request){
+        Long userId;
+        try {
+            userId  = userSupport.getCurrentUserId();
+            videoView.setUserId(userId);
+            videoService.addVideoView(videoView, request);
+        }catch (Exception e){
+            videoService.addVideoView(videoView, request);
+
+        }
+        return JsonResponse.success();
+    }
+
+    /**
+     * 查询视频播放量
+     * @param videoId 视频id
+     * @return 播放量
+     */
+    public JsonResponse<Integer> getVideoViewCounts(@RequestParam Long videoId){
+        Integer count = videoService.getVideoViewCounts(videoId);
+        return new JsonResponse<>(count);
+    }
 }

@@ -88,6 +88,19 @@
                   #{createTime}
                          )
     </insert>
+    <insert id="addVideoView" parameterType="cn.zeroeden.domain.VideoView" useGeneratedKeys="true" keyProperty="id">
+            insert into
+                t_video_view(videoId,
+                             userId,
+                             clientId,
+                             ip,
+                             createTime)
+            values (#{videoId},
+                    #{userId},
+                    #{clientId},
+                    #{ip},
+                    #{createTime})
+    </insert>
     <update id="batchAddVideoTags" parameterType="java.util.List">
         insert into
             t_video_tag(
@@ -259,5 +272,33 @@
             t_video
         where
             id = #{id}
+    </select>
+    <select id="getVieoView" resultType="cn.zeroeden.domain.VideoView">
+        select
+            *
+        from
+            t_video_view
+        where
+            videoId = #{videoId}
+            <if test="userId == null and clientId != nuill">
+                and clientId = #{clientId} and userId is null
+            </if>
+            <if test="userId != null">
+                and userId = #{userId}
+            </if>
+            <if test="ip != null and ip != '' ">
+                and ip = #{ip}
+            </if>
+            <if test="today != null and today != '' ">
+                and DATE_FORMAT(createTime, '%Y-%m-%d') = #{today}
+            </if>
+    </select>
+    <select id="getVideoViewCounts" resultType="java.lang.Integer">
+        select
+            count(1)
+        from
+            t_video_view
+        where
+            videoId = #{videoId}
     </select>
 </mapper>
